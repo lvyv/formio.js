@@ -94,8 +94,22 @@ export default class FormComponent extends Component {
     if (this.component.revision || this.component.revision === 0) {
       this.formSrc += `/v/${this.component.revision}`;
     }
-
-    return this.createSubForm();
+    return this.createSubForm().then(() => {
+      const findRoot = (comp) => {
+        let rootComp = comp;
+        if (comp.parent) {
+          rootComp = findRoot(comp.parent);
+        }
+        return rootComp;
+      };
+      setTimeout(() => {
+        const root = findRoot(this);
+        if (root && root.subWizards) {
+          root.subWizards.push(this);
+          this.emit('subWizardsUpdated');
+        }
+      }, 0);
+    });
   }
 
   get dataReady() {
